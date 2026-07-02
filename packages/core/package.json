@@ -1,0 +1,25 @@
+{
+  "name": "@apl/core",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.48",
+    "@opentelemetry/api": "^1.9.1",
+    "ai": "^6.0.190",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@types/pg": "^8.20.0",
+    "typescript": "^6.0.3"
+  }
+}
