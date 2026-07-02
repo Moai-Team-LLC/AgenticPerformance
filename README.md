@@ -1,5 +1,15 @@
 # Agent Performance Layer (APL)
 
+[![Agentic Product Standard: Evals & observability](https://img.shields.io/badge/Agentic_Product_Standard-Evals_%26_observability-1E607A)](https://github.com/Moai-Team-LLC/agentic-product-standard/blob/main/SCORECARD.md)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
+
+> Part of the Moai Team agentic stack:
+> **[Standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** (the contract) →
+> **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** (knowledge & memory) →
+> **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** (runtime & operations) →
+> **APL** (performance & improvement). Adapters for the sibling products ship in
+> [`packages/core/src/adapters/`](packages/core/src/adapters).
+
 **Open-source observability, evaluation, error-taxonomy, and improvement loop for
 agentic products.** APL instruments any LLM-agent system — LangGraph, CrewAI, the
 OpenAI/Claude Agent SDKs, or a raw agent loop — over OpenTelemetry, and turns raw
