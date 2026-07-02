@@ -9,7 +9,7 @@
   ],
   "type": "module",
   "scripts": {
-    "tsc": "tsc --noEmit -p packages/core/tsconfig.json",
+    "tsc": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p apps/ingest/tsconfig.json && tsc --noEmit -p apps/worker/tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "db:generate": "dotenvx run -f .env.local -- drizzle-kit generate",

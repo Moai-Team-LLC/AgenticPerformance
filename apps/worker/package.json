@@ -1,0 +1,21 @@
+{
+  "name": "@apl/worker",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "tsc": "tsc --noEmit",
+    "dev": "bun src/index.ts"
+  },
+  "dependencies": {
+    "@apl/core": "*",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@types/pg": "^8.20.0",
+    "typescript": "^6.0.3"
+  }
+}
