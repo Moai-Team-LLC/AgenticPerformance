@@ -11,6 +11,8 @@
   "scripts": {
     "tsc": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p apps/ingest/tsconfig.json && tsc --noEmit -p apps/worker/tsconfig.json",
     "test": "vitest run",
+    "ingest": "dotenvx run -f .env.local -- bun apps/ingest/src/index.ts",
+    "worker": "dotenvx run -f .env.local -- bun apps/worker/src/index.ts",
     "test:watch": "vitest",
     "db:generate": "dotenvx run -f .env.local -- drizzle-kit generate",
     "db:migrate-local": "dotenvx run -f .env.local -- drizzle-kit migrate"

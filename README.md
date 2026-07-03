@@ -39,7 +39,7 @@ built in the open. Each layer is its own product; adopt the ones you need.
 | 📐 | **[agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** | The contract — principles, the autonomy ladder, the 8-layer harness, eval discipline. |
 | 🧠 | **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** | Knowledge & memory — auditable, self-improving, citation-enforced, over MCP. |
 | ⚙️ | **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** | Runtime & operations — deployable manifests, bounded runner, scheduling, durable backlog, fleet health. |
-| 🩹 | **[AgenticSelfHealingCode](https://github.com/Moai-Team-LLC/AgenticSelfHealingCode)** | Self-healing ops — production monitoring, auto-repair, and test-suite healing. |
+| 🩹 | **AgenticSelfHealingCode** *(private beta — opening soon)* | Self-healing ops — production monitoring, auto-repair, and test-suite healing. |
 | 📈 | **AgenticPerformance** (this repo) | Performance & improvement — traces, evals, error taxonomy, and the governed improvement loop. |
 
 **How they compose:** AgenticOps *runs* the fleet and AgenticMind *judges*;
@@ -80,6 +80,40 @@ apps/worker          @apl/worker — the advisory-locked improvement scheduler.
 docs/                the PRD (v0.1 → v0.2), the review findings, the phased
                      backlog, and the design decisions.
 ```
+
+## Quickstart (~5 minutes to your first trace)
+
+Requires [Bun](https://bun.sh) ≥ 1.3 and Docker.
+
+```bash
+git clone https://github.com/Moai-Team-LLC/AgenticPerformance
+cd AgenticPerformance
+bun install
+cp .env.example .env.local
+
+docker compose up -d            # Postgres (pgvector + vectorscale + TimescaleDB) on :5439
+bun run db:migrate-local        # creates the 10 apl_* tables, RLS, hypertable, retention
+
+bun run ingest                  # the OTLP/JSON trace server on :4319
+```
+
+Send a sample agent trace and look at it:
+
+```bash
+curl -s -X POST http://localhost:4319/v1/traces \
+  -H 'content-type: application/json' \
+  --data-binary @examples/otlp-sample.json
+# → {"ok":true,"written":3}
+
+docker compose exec db psql -U postgres -c \
+  "SELECT operation, name, agent_id, agent_version FROM apl_span ORDER BY start_ts;"
+```
+
+You now have an `invoke_agent` → `chat` + `execute_tool` trace in the store —
+attributed to an agent + version, tenant-isolated by RLS, with a 90-day retention
+policy. From here: wrap your own agent with the SDK (`@apl/core/sdk`), or pipe an
+existing OTel Collector at `/v1/traces` (see `deploy/otel-collector.apl.yaml` for
+the reference tail-sampling + redaction config).
 
 ## Develop
 

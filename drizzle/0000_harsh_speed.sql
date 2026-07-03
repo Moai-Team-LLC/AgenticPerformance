@@ -1,3 +1,6 @@
+-- APL needs three extensions; the timescale/timescaledb-ha image bundles all binaries.
+CREATE EXTENSION IF NOT EXISTS vector;--> statement-breakpoint
+CREATE EXTENSION IF NOT EXISTS vectorscale;--> statement-breakpoint
 CREATE TABLE "apl_agent_prompt" (
 	"tenant_id" uuid DEFAULT coalesce(current_setting('app.current_tenant', true), '00000000-0000-0000-0000-000000000000')::uuid NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,

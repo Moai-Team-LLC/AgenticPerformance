@@ -1,0 +1,57 @@
+# APL reference OTel Collector config (Phase-1, backlog APL-1.4 / APL-1.5).
+#
+# The SDK does head sampling + a keep-hint only; "keep 100% of errors AND slow
+# traces" and defence-in-depth redaction are the Collector's job. Requires the
+# otel-collector-contrib image (tail_sampling + redaction are contrib processors).
+# This is the required infra for self-hosted/VPC parity (FR-INTEG-4).
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  # Defence-in-depth on top of the SDK's in-process redaction (lib/apl/redact.ts).
+  redaction:
+    allow_all_keys: true
+    blocked_values:
+      - "sk-[A-Za-z0-9]{20,}" # OpenAI
+      - "gh[pousr]_[A-Za-z0-9]{20,}" # GitHub
+      - "AKIA[0-9A-Z]{16}" # AWS
+      - "[sr]k_(live|test)_[A-Za-z0-9]{16,}" # Stripe
+      - "eyJ[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}" # JWT
+    summary: debug
+
+  # Tail sampling: decide AFTER the whole trace is buffered (what head sampling can't do).
+  tail_sampling:
+    decision_wait: 10s
+    policies:
+      - name: keep-hint # apl.keep set by recordOutcome on fail/escalate
+        type: boolean_attribute
+        boolean_attribute: { key: apl.keep, value: true }
+      - name: keep-errors
+        type: status_code
+        status_code: { status_codes: [ERROR] }
+      - name: keep-slow
+        type: latency
+        latency: { threshold_ms: 10000 }
+      - name: sample-the-rest
+        type: probabilistic
+        probabilistic: { sampling_percentage: 5 }
+
+  batch: {}
+
+exporters:
+  # Point at the APL OTLP ingest endpoint (the net-new receiver → normalize → apl_span writer).
+  otlphttp/apl:
+    endpoint: ${env:APL_INGEST_ENDPOINT}
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [redaction, tail_sampling, batch]
+      exporters: [otlphttp/apl]

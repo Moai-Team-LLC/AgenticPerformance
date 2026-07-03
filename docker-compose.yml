@@ -1,0 +1,18 @@
+# Local Postgres for AgenticPerformance. The timescale HA image bundles pgvector,
+# pgvectorscale (the `diskann` index), and TimescaleDB — the migration creates the
+# extensions itself, so no init scripts are needed.
+#
+#   docker compose up -d
+#   bun run db:migrate-local
+services:
+  db:
+    image: timescale/timescaledb-ha:pg17
+    ports:
+      - "5439:5432" # unusual host port to avoid clashing with an existing Postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - apl-pgdata:/home/postgres/pgdata
+
+volumes:
+  apl-pgdata:
