@@ -9,9 +9,18 @@
 import type { TraceWriter } from "@apl/core/ingest/writer"
 
 import { Buffer } from "node:buffer"
+import { createHash, timingSafeEqual } from "node:crypto"
 
 import { otlpJsonToTraces } from "@apl/core/ingest/otlp-json"
 import { ingestOtlp } from "@apl/core/ingest/receiver"
+
+/**
+ * Constant-time credential compare. Hashing both sides first normalises lengths
+ * (timingSafeEqual requires equal-length buffers), so neither the length nor the
+ * content of the expected token leaks through response timing.
+ */
+const safeEqual = (a: string, b: string): boolean =>
+  timingSafeEqual(createHash("sha256").update(a).digest(), createHash("sha256").update(b).digest())
 
 /** Default request-body cap: 5 MB of OTLP/JSON is far beyond a normal export batch. */
 export const DEFAULT_MAX_BODY_BYTES = 5_000_000
@@ -35,7 +44,7 @@ export const createHandler = (opts: HandlerOptions) => {
       return Response.json({ ok: true, service: "apl-ingest" })
     }
     if (pathname === "/v1/traces" && req.method === "POST") {
-      if (authRequired && req.headers.get("authorization") !== `Bearer ${token}`) {
+      if (authRequired && !safeEqual(req.headers.get("authorization") ?? "", `Bearer ${token}`)) {
         return Response.json({ ok: false, error: "unauthorized" }, { status: 401 })
       }
       // Short-circuit on a declared Content-Length before reading the body

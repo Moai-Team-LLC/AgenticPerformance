@@ -139,6 +139,11 @@ Production checklist:
 - **Auth (required).** Set `APL_INGEST_TOKEN` to enable Bearer auth on
   `POST /v1/traces`. Without it the ingest endpoint is open — dev only.
   Clients and the Collector must send `Authorization: Bearer <token>`.
+  The comparison is constant-time.
+- **TLS (required).** The ingest server speaks plain HTTP; run it behind a
+  TLS-terminating reverse proxy (Caddy, nginx, or your cloud LB). The Bearer
+  token travels in a header, so plaintext HTTP outside localhost is not
+  acceptable.
 - **Collector.** Point an OTel Collector at `/v1/traces` using
   [`deploy/otel-collector.apl.yaml`](deploy/otel-collector.apl.yaml) — tail
   sampling keeps 100% of errors and slow traces, with defence-in-depth

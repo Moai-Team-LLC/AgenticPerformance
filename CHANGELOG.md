@@ -4,6 +4,19 @@ All notable changes to AgenticPerformance are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] — 2026-07-03
+
+### Security
+
+- The ingest Bearer-token comparison is now constant-time
+  (`crypto.timingSafeEqual` over SHA-256 digests), closing a theoretical
+  timing side-channel on `APL_INGEST_TOKEN`.
+
+### Docs
+
+- Production checklist now states the TLS requirement explicitly: run the
+  ingest server behind a TLS-terminating reverse proxy.
+
 ## [0.2.0] — 2026-07-03
 
 Production hardening: the ingest server gets auth + payload limits, and the
@@ -58,5 +71,6 @@ PRD (see [`docs/`](docs)).
   products' telemetry into the APL contract (zero dependency on their packages).
 - **Worker** (`@apl/worker`) — an advisory-locked improvement sweep.
 
+[0.2.1]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.2.1
 [0.2.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.1.0
