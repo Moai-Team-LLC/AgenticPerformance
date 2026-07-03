@@ -2,8 +2,12 @@
 # pgvectorscale (the `diskann` index), and TimescaleDB — the migration creates the
 # extensions itself, so no init scripts are needed.
 #
+# Quickstart (unchanged — starts ONLY the db):
 #   docker compose up -d
 #   bun run db:migrate-local
+#
+# Full stack (db + migrate + ingest + worker, images built from this repo):
+#   docker compose --profile full up -d --build
 services:
   db:
     image: timescale/timescaledb-ha:pg17
@@ -11,8 +15,52 @@ services:
       - "5439:5432" # unusual host port to avoid clashing with an existing Postgres
     environment:
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
     volumes:
       - apl-pgdata:/home/postgres/pgdata
+
+  # --- optional services below (profile "full") — the quickstart never starts them ---
+
+  migrate:
+    profiles: ["full"]
+    build:
+      context: .
+      dockerfile: apps/ingest/Dockerfile
+    command: ["bunx", "drizzle-kit", "migrate"]
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+    depends_on:
+      db:
+        condition: service_healthy
+
+  ingest:
+    profiles: ["full"]
+    build:
+      context: .
+      dockerfile: apps/ingest/Dockerfile
+    ports:
+      - "4319:4319"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+      APL_INGEST_TOKEN: ${APL_INGEST_TOKEN:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    profiles: ["full"]
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   apl-pgdata:

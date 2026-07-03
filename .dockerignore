@@ -1,0 +1,9 @@
+# Docker build context excludes (build context = repo root; drizzle/ and
+# examples/ stay IN the context — migrations and the OTLP sample ship with it).
+# `**/node_modules` matters: apps/* and packages/* have nested installs on host.
+node_modules
+**/node_modules
+.git
+.github
+docs
+.env*

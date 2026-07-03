@@ -4,6 +4,27 @@ All notable changes to AgenticPerformance are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] — 2026-07-03
+
+Production hardening: the ingest server gets auth + payload limits, and the
+repo gets a deployable Docker stack, an end-to-end CI job, and a release
+pipeline.
+
+### Added
+
+- **Ingest hardening** — Bearer-token auth on the ingest server
+  (`APL_INGEST_TOKEN`; required outside local dev) and a request payload cap
+  (`APL_MAX_BODY_BYTES`, default 5 MB).
+- **Docker** — Dockerfiles for `@apl/ingest` and `@apl/worker`, plus a
+  docker-compose `full` profile (db + migrate + ingest on `:4319` + worker).
+- **CI e2e** — an end-to-end job that applies the migration and runs an authed
+  ingest smoke test against a real TimescaleDB.
+- **Release workflow** — tag-driven GitHub release.
+
+### Fixed
+
+- Dependabot PRs no longer fail CI on a stale lockfile.
+
 ## [0.1.0] — 2026-07-02
 
 Initial release — the reference implementation of the Agentic Product Standard's
@@ -37,4 +58,5 @@ PRD (see [`docs/`](docs)).
   products' telemetry into the APL contract (zero dependency on their packages).
 - **Worker** (`@apl/worker`) — an advisory-locked improvement sweep.
 
+[0.2.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.1.0

@@ -13,8 +13,71 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.3.11
-      - run: bun install --frozen-lockfile
+      - name: Install (frozen lockfile)
+        if: github.actor != 'dependabot[bot]'
+        run: bun install --frozen-lockfile
+      - name: Install (dependabot, lockfile refresh)
+        if: github.actor == 'dependabot[bot]'
+        run: bun install
       - name: Typecheck (core + apps)
         run: bun run tsc
       - name: Test
         run: bun run test
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: check
+    services:
+      db:
+        image: timescale/timescaledb-ha:pg17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5439:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5439/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+      - name: Install (frozen lockfile)
+        if: github.actor != 'dependabot[bot]'
+        run: bun install --frozen-lockfile
+      - name: Install (dependabot, lockfile refresh)
+        if: github.actor == 'dependabot[bot]'
+        run: bun install
+      - name: Migrate
+        run: bunx drizzle-kit migrate
+      - name: Start ingest server
+        env:
+          PORT: "4319"
+          APL_INGEST_TOKEN: ci-secret
+        run: |
+          bun apps/ingest/src/index.ts > ingest.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:4319/health > /dev/null 2>&1 && exit 0
+            sleep 1
+          done
+          echo "ingest server did not become healthy within 30s"
+          cat ingest.log
+          exit 1
+      - name: Assert unauthenticated ingest is rejected (401)
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:4319/v1/traces \
+            -H 'Content-Type: application/json' \
+            --data-binary @examples/otlp-sample.json)
+          [ "$status" = "401" ] || { echo "expected 401 without Authorization, got $status"; exit 1; }
+      - name: Assert quickstart sample ingests 3 spans
+        run: |
+          body=$(curl -fsS -X POST http://localhost:4319/v1/traces \
+            -H 'Authorization: Bearer ci-secret' \
+            -H 'Content-Type: application/json' \
+            --data-binary @examples/otlp-sample.json)
+          echo "$body"
+          echo "$body" | grep -q '"written":3' || { echo "expected body with \"written\":3"; exit 1; }

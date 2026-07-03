@@ -29,6 +29,10 @@ PII-laden, highest-volume data in a fleet. The design reflects that:
   (never a per-query `WHERE`); the trace store is a TimescaleDB hypertable in the
   same Postgres so RLS applies to it too.
 - **Redaction** runs in-process before export; content capture is off by default.
+- **Ingest auth** — the ingest endpoint (`POST /v1/traces`) supports Bearer-token
+  auth via `APL_INGEST_TOKEN`; it MUST be enabled anywhere outside local dev
+  (unset = open endpoint). Request payloads are size-capped
+  (`APL_MAX_BODY_BYTES`).
 - **The improvement loop's autonomy is bounded by code**, not prompt: a
   diff-allowlist + content guard reject any patch that touches tools/permissions
   or smuggles tool-invocation, secret, or scope language; mined artifacts pass an
