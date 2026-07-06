@@ -12,8 +12,9 @@
 > **[Standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** (the contract) →
 > **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** (knowledge & memory) →
 > **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** (runtime & operations) →
-> **AgenticPerformance** (evals & improvement). See the
-> [full ecosystem](#-the-agenticproduct-ecosystem) below; adapters for the sibling
+> **AgenticPerformance** (this repo — evals & improvement) →
+> **[AgenticAssurance](https://github.com/Moai-Team-LLC/AgenticAssurance)** (security & assurance).
+> See the [full ecosystem](#-the-agenticproduct-ecosystem) below; adapters for the sibling
 > products ship in [`packages/core/src/adapters/`](packages/core/src/adapters).
 
 **Open-source observability, evaluation, error-taxonomy, and improvement loop for
@@ -41,11 +42,13 @@ built in the open. Each layer is its own product; adopt the ones you need.
 | ⚙️ | **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** | Runtime & operations — deployable manifests, bounded runner, scheduling, durable backlog, fleet health. |
 | 🩹 | **AgenticSelfHealingCode** *(private beta — opening soon)* | Self-healing ops — production monitoring, auto-repair, and test-suite healing. |
 | 📈 | **AgenticPerformance** (this repo) | Performance & improvement — traces, evals, error taxonomy, and the governed improvement loop. |
+| 🛡️ | **[AgenticAssurance](https://github.com/Moai-Team-LLC/AgenticAssurance)** | Assurance & security — red-team any agent for the OWASP Agentic risks (toxic-flow graph, side-effect detection, SARIF) and prove it is controlled with an auditor-ready evidence bundle. |
 
 **How they compose:** AgenticOps *runs* the fleet and AgenticMind *judges*;
 AgenticPerformance *measures and improves* what they produce — its
 [adapters](packages/core/src/adapters) ingest their telemetry into one contract;
-AgenticSelfHealingCode *repairs* what breaks. All conform to the Standard.
+AgenticSelfHealingCode *repairs* what breaks; AgenticAssurance *red-teams* the result
+and proves it audit-ready. All conform to the Standard.
 
 > Status: `@apl/core` + `@apl/ingest` (OTLP server) + `@apl/worker` are built and
 > tested (**122 tests**, `tsc` clean); the migration applies to a fresh Postgres and
