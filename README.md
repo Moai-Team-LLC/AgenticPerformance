@@ -8,14 +8,6 @@
 [Agentic Product Standard](https://github.com/Moai-Team-LLC/agentic-product-standard)'s
 *Evals & observability* surface.
 
-> Part of the Moai Team agentic stack:
-> **[Standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** (the contract) →
-> **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** (knowledge & memory) →
-> **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** (runtime & operations) →
-> **AgenticPerformance** (evals & improvement). See the
-> [full ecosystem](#-the-agenticproduct-ecosystem) below; adapters for the sibling
-> products ship in [`packages/core/src/adapters/`](packages/core/src/adapters).
-
 **Open-source observability, evaluation, error-taxonomy, and improvement loop for
 agentic products.** APL instruments any LLM-agent system — LangGraph, CrewAI, the
 OpenAI/Claude Agent SDKs, or a raw agent loop — over OpenTelemetry, and turns raw
@@ -31,21 +23,18 @@ audit, fleet view, on-prem) are a separate edition.
 
 ## 🌐 The AgenticProduct ecosystem
 
-The AgenticProduct family — a standard plus runnable reference implementations,
-built in the open. Each layer is its own product; adopt the ones you need.
+One standard and five reference implementations you can run — together they close the loop every production agent needs: **run → remember → measure → heal**, with security as a cross-cutting assurance plane.
 
-| | Repo | Layer |
+|  | Project | Role |
 |---|---|---|
-| 📐 | **[agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard)** | The contract — principles, the autonomy ladder, the 8-layer harness, eval discipline. |
-| 🧠 | **[AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind)** | Knowledge & memory — auditable, self-improving, citation-enforced, over MCP. |
-| ⚙️ | **[AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps)** | Runtime & operations — deployable manifests, bounded runner, scheduling, durable backlog, fleet health. |
-| 🩹 | **AgenticSelfHealingCode** *(private beta — opening soon)* | Self-healing ops — production monitoring, auto-repair, and test-suite healing. |
-| 📈 | **AgenticPerformance** (this repo) | Performance & improvement — traces, evals, error taxonomy, and the governed improvement loop. |
+| 📐 | [agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard) | The contract — principles, the autonomy ladder, the harness layers, and eval discipline (plus a Claude Code skill set). |
+| ⚙️ | [AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps) | Runtime & operations — deployable manifests, scheduling, a durable backlog, a bounded runner, and fleet health. |
+| 🧠 | [AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind) | Knowledge & memory — auditable, self-improving, citation-enforced, over MCP; Postgres-only. |
+| 📈 | **AgenticPerformance** (this repo) | Evals & observability — OTel traces, golden-set evals with a CI gate, failure clusters, and the improvement loop. |
+| 🩹 | [AgenticSelfHealingCode](https://github.com/Moai-Team-LLC/AgenticSelfHealingCode) | Self-healing ops — production monitoring, incident diagnosis/RCA, and test-suite healing on earned autonomy. |
+| 🛡️ | [AgenticAssurance](https://github.com/Moai-Team-LLC/AgenticAssurance) | Security & assurance — red-teams any agent (OWASP Agentic + MITRE ATLAS), a toxic-flow graph, and SARIF output. |
 
-**How they compose:** AgenticOps *runs* the fleet and AgenticMind *judges*;
-AgenticPerformance *measures and improves* what they produce — its
-[adapters](packages/core/src/adapters) ingest their telemetry into one contract;
-AgenticSelfHealingCode *repairs* what breaks. All conform to the Standard.
+**How they compose.** **AgenticOps** runs the fleet, **AgenticMind** gives agents auditable knowledge & memory, **AgenticPerformance** measures every run with traces and evals, and **AgenticSelfHealingCode** repairs what breaks — closing the **run → remember → measure → heal** loop. **AgenticAssurance** red-teams any agent in that loop for security, and the whole stack conforms to the **[agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard)**.
 
 > Status: `@apl/core` + `@apl/ingest` (OTLP server) + `@apl/worker` are built and
 > tested (**122 tests**, `tsc` clean); the migration applies to a fresh Postgres and
