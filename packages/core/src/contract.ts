@@ -39,6 +39,10 @@ export const GenAI = {
   INPUT_MESSAGES: "gen_ai.input.messages",
   OUTPUT_MESSAGES: "gen_ai.output.messages",
   SYSTEM_INSTRUCTIONS: "gen_ai.system_instructions",
+  // Standard GenAI agent identity — the fallback when apl.* identity is absent.
+  AGENT_ID: "gen_ai.agent.id",
+  AGENT_NAME: "gen_ai.agent.name",
+  AGENT_VERSION: "gen_ai.agent.version",
 } as const
 
 /** APL-namespaced attributes (FR-CONTRACT-5). apl.*, not moai.*. */

@@ -89,4 +89,38 @@ describe("APL trace mapper (Phase-1 APL-1.4)", () => {
     const rows = spansToRows(t, "trace-1", timings())
     expect(rows[0]?.tenantId).toBeUndefined()
   })
+
+  it("attributes agents by the OTel GenAI standard keys when apl.* is absent", () => {
+    const t = trace()
+    const root = t.spans[0]
+    if (!root) throw new Error("fixture missing invoke_agent span")
+    root.attributes = {
+      [GenAI.OPERATION_NAME]: "invoke_agent",
+      [GenAI.AGENT_ID]: "genai-agent",
+      [GenAI.AGENT_VERSION]: "v9-std",
+    }
+    const rows = spansToRows(t, "trace-1", timings())
+    for (const row of rows) {
+      expect(row.agentId).toBe("genai-agent")
+      expect(row.agentVersion).toBe("v9-std")
+    }
+  })
+
+  it("keeps apl.agent_id winning when both apl.* and gen_ai.* are present", () => {
+    const t = trace()
+    const root = t.spans[0]
+    if (!root) throw new Error("fixture missing invoke_agent span")
+    root.attributes = {
+      [GenAI.OPERATION_NAME]: "invoke_agent",
+      [Apl.AGENT_ID]: "research-agent",
+      [Apl.AGENT_VERSION]: "v3-abc123",
+      [GenAI.AGENT_ID]: "genai-agent",
+      [GenAI.AGENT_VERSION]: "v9-std",
+    }
+    const rows = spansToRows(t, "trace-1", timings())
+    for (const row of rows) {
+      expect(row.agentId).toBe("research-agent")
+      expect(row.agentVersion).toBe("v3-abc123")
+    }
+  })
 })

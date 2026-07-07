@@ -11,7 +11,7 @@
 
 import type { AplTrace, Attributes } from "../contract"
 
-import { Apl, AplOperation } from "../contract"
+import { Apl, AplOperation, GenAI } from "../contract"
 
 /** One insert row for `apl_span` — column-for-column with the drizzle table. */
 export interface AplSpanRow {
@@ -53,8 +53,15 @@ export const spansToRows = (
   const tenantId = stringAttr(trace.resource, Apl.TENANT_ID) ?? undefined
 
   const agentSpan = trace.spans.find((s) => s.operation === AplOperation.INVOKE_AGENT)
-  const agentId = agentSpan ? stringAttr(agentSpan.attributes, Apl.AGENT_ID) : null
-  const agentVersion = agentSpan ? stringAttr(agentSpan.attributes, Apl.AGENT_VERSION) : null
+  // apl.agent_id wins as an explicit override; otherwise fall back to the OTel GenAI
+  // standard so any conformant emitter (gen_ai.agent.id) is attributed. Same for version.
+  const agentAttrs = agentSpan?.attributes
+  const agentId = agentAttrs
+    ? (stringAttr(agentAttrs, Apl.AGENT_ID) ?? stringAttr(agentAttrs, GenAI.AGENT_ID))
+    : null
+  const agentVersion = agentAttrs
+    ? (stringAttr(agentAttrs, Apl.AGENT_VERSION) ?? stringAttr(agentAttrs, GenAI.AGENT_VERSION))
+    : null
 
   return trace.spans.map((span) => {
     const timing = timings.get(span.spanId)
