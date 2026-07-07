@@ -1,9 +1,10 @@
 /**
  * Chat provider seam (vendored/adapted from AgenticMind lib/ai/chat.ts). One
  * OpenAI-compatible endpoint, configured by APL_CHAT_BASE_URL + APL_CHAT_API_KEY:
- * OpenAI by default, or Ollama / vLLM / OpenRouter / Together / Groq / Azure —
- * anything that speaks the OpenAI chat API. Used by the LLM tails (judge runner,
- * taxonomy open-coding, L2 proposer) via ai.ts.
+ * OpenAI by default; AgenticGateway (the family's model & cost plane) when
+ * composing the AgenticProduct stack; or Ollama / vLLM / OpenRouter / Together /
+ * Groq / Azure — anything that speaks the OpenAI chat API. Used by the LLM tails
+ * (judge runner, taxonomy open-coding, L2 proposer) via ai.ts.
  */
 
 import type { LanguageModel } from "ai"
