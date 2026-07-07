@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest"
 
-import type { AplTrace } from "../contract"
+import type { AplTrace, RawTrace } from "../contract"
 import type { SpanTiming } from "./trace-mapper"
 
 import { Apl, AplOperation, GenAI } from "../contract"
+import { normalizeOpenInference } from "../normalize"
 import { spansToRows } from "./trace-mapper"
 
 const trace = (): AplTrace => ({
@@ -122,5 +123,36 @@ describe("APL trace mapper (Phase-1 APL-1.4)", () => {
       expect(row.agentId).toBe("research-agent")
       expect(row.agentVersion).toBe("v3-abc123")
     }
+  })
+
+  it("attributes an OpenInference agent by gen_ai.agent.id through the REAL normalize pipeline", () => {
+    // A Mind-shaped root span: openinference.span.kind=CHAIN (root) carrying only
+    // the vendor-neutral gen_ai.agent.* attrs. Regression for the drop bug: the
+    // OpenInference normalizer must preserve the agent identity, not strip it to
+    // apl.* before the mapper resolves it. Goes through normalizeOpenInference, not
+    // a hand-built AplTrace, so it exercises the same path a real kl_ask exporter hits.
+    const raw: RawTrace = {
+      resource: { [Apl.TENANT_ID]: "tenant-1", [Apl.PRODUCT_ID]: "moai" },
+      spans: [
+        {
+          spanId: "root",
+          parentSpanId: null,
+          name: "knowledge.ask",
+          attributes: {
+            "openinference.span.kind": "CHAIN",
+            [GenAI.AGENT_ID]: "agenticmind",
+            [GenAI.AGENT_VERSION]: "v0.13.0",
+          },
+        },
+      ],
+    }
+    const rows = spansToRows(
+      normalizeOpenInference(raw),
+      "trace-1",
+      new Map([["root", { startMs: 1_000, endMs: 2_000 }]]),
+    )
+    expect(rows[0]?.operation).toBe(AplOperation.INVOKE_AGENT)
+    expect(rows[0]?.agentId).toBe("agenticmind")
+    expect(rows[0]?.agentVersion).toBe("v0.13.0")
   })
 })
