@@ -27,6 +27,16 @@ export type AplChat = (request: AplChatRequest) => Promise<string>
 /** Default chat model id — a cheap tier suits triage/judge/proposer work. Overridable per call. */
 export const DEFAULT_APL_CHAT_MODEL = "gpt-4o-mini"
 
+/**
+ * Operator override for the eval JUDGE model (doctrine §1a). When `APL_JUDGE_MODEL` is set,
+ * the judge runs on it instead of the agent-under-test's family — point it at a DIFFERENT
+ * family routed through the gateway (e.g. a pinned Gemini/Claude snapshot) so the verify
+ * pass does not co-sign the generator's blind spots. Must be a dated snapshot: `runJudge`
+ * enforces it (a floating alias makes calibration meaningless). Returns undefined when
+ * unset, so the judge falls back to the caller's model / the default.
+ */
+export const aplJudgeModel = (): string | undefined => process.env.APL_JUDGE_MODEL
+
 /** Real adapter over the engine's configured chat provider. */
 export const aiChat: AplChat = async ({ prompt, system, model, temperature }) => {
   const { text } = await generateText({
