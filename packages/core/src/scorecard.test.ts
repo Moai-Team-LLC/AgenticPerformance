@@ -22,6 +22,7 @@ const base: ScorecardInput = {
   toolCallSuccessRate: 0.97,
   pendingApprovals: 2,
   l3Eligible: false,
+  verifiedOutcomes: 4,
 }
 
 describe("APL scorecard read-model (Phase-3 APL-3.7)", () => {
@@ -45,5 +46,15 @@ describe("APL scorecard read-model (Phase-3 APL-3.7)", () => {
     expect(sc.pendingApprovals).toBe(2)
     expect(sc.toolCallSuccessRate).toBe(0.97)
     expect(sc.l3Eligible).toBe(false)
+  })
+
+  it("computes cost per verified outcome = actual cost / verified count (§5)", () => {
+    const sc = buildScorecard(base) // actual.costUsd 12 / verifiedOutcomes 4
+    expect(sc.costPerVerifiedOutcome).toBe(3)
+  })
+
+  it("returns null cost-per-verified rather than dividing by zero when none passed", () => {
+    const sc = buildScorecard({ ...base, verifiedOutcomes: 0 })
+    expect(sc.costPerVerifiedOutcome).toBeNull()
   })
 })
