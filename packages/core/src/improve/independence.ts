@@ -45,6 +45,31 @@ export interface GeneratorJudgeDecorrelation {
 }
 
 /**
+ * Coarse provider family of a model id (bare or `provider/model`, e.g. a gateway slug like
+ * `openrouter/google/gemini-1.5-pro`). Lets the decorrelation/independence checks be
+ * grounded in the ACTUAL routed model id rather than a hand-typed `provider` string that
+ * can drift from reality. Pure. (Mirrors the sibling engines' family mapper.)
+ */
+export const providerFamily = (model: string): string => {
+  const m = model.toLowerCase()
+  const slash = m.lastIndexOf("/")
+  const bare = slash > 0 ? m.slice(slash + 1) : m
+  if (/^(gpt-|o1|o3|o4|chatgpt|text-)/u.test(bare) || m.includes("openai")) {
+    return "openai"
+  }
+  if (bare.includes("claude") || m.includes("anthropic")) {
+    return "anthropic"
+  }
+  if (bare.includes("gemini") || m.includes("google")) {
+    return "google"
+  }
+  if (/llama|mistral|mixtral|qwen|deepseek|gemma/u.test(bare)) {
+    return "open-weights"
+  }
+  return slash > 0 ? m.slice(0, m.indexOf("/")) : "unknown"
+}
+
+/**
  * Doctrine §1a: a judge must be a DIFFERENT model family than the GENERATOR whose output
  * it verifies. A same-family second pass shares the generator's blind spots and co-signs
  * its errors ("two GPT passes are one opinion twice") — distinct from `checkJudgeIndependence`,
@@ -60,6 +85,18 @@ export const checkGeneratorJudgeDecorrelation = (
         reason: `judge shares the generator's model family (${judgeProvider}) — a same-family check co-signs shared blind spots`,
       }
     : { decorrelated: true }
+
+/**
+ * The same §1a check, grounded in the actual routed model ids (e.g. the judge's
+ * `opts.model`) instead of hand-typed provider strings that can lie: it derives each
+ * family with `providerFamily` first. Prefer this whenever the concrete model ids are
+ * known so the check reflects what the gateway will really route, not metadata.
+ */
+export const checkGeneratorJudgeDecorrelationByModel = (
+  generatorModelId: string,
+  judgeModelId: string,
+): GeneratorJudgeDecorrelation =>
+  checkGeneratorJudgeDecorrelation(providerFamily(generatorModelId), providerFamily(judgeModelId))
 
 export interface CorpusPartition {
   /** Seen only by the gating judge — the proposer never sees these. */
