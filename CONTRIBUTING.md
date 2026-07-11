@@ -44,5 +44,5 @@ judge calibration, failure clustering, the improvement loop, and the scorecard.
 Agent *runtime / operations* (manifests, scheduling, fleet health) belong to
 [AgenticOps](https://github.com/Moai-Team-LLC/AgenticOps); *knowledge / judgment*
 to [AgenticMind](https://github.com/Moai-Team-LLC/AgenticMind);
-*self-healing ops* to AgenticSelfHealingCode; and *correctness / conformance* to
+and *correctness / conformance* to
 the Standard. Please keep contributions on the performance plane.
