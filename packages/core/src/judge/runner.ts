@@ -7,10 +7,12 @@
  * minor phrasing drift ("supported", "yes") still lands. A thrown chat call is a
  * hard negative (got=false) rather than an error — a judge that cannot answer has
  * not endorsed the example. The chat boundary is injected (AplChat) so tests use a
- * fake and never touch a network/LLM. Pure aside from the injected chat.
+ * fake and never touch a network/LLM. The judge model resolves to `opts.model`, else the
+ * `APL_JUDGE_MODEL` env override (doctrine §1a), else the chat default; a named model must
+ * be a pinned snapshot. Pure aside from the injected chat + that env read.
  */
 
-import type { AplChat } from "../ai"
+import { aplJudgeModel, type AplChat } from "../ai"
 
 import { stratifiedCalibration, type StratifiedCalibration } from "./calibration"
 import { assertModelSnapshot } from "./version"
@@ -50,9 +52,12 @@ export const runJudge = async (
   opts?: { system?: string; model?: string },
 ): Promise<{ id: string; expected: boolean; got: boolean }[]> => {
   const system = opts?.system ?? DEFAULT_SYSTEM
-  // A named judge model must be a pinned snapshot — a floating alias makes calibration
-  // meaningless (doctrine §1). Fail closed before spending a single call.
-  if (opts?.model !== undefined) assertModelSnapshot(opts.model, "judge")
+  // Judge model: explicit opts.model wins, else the APL_JUDGE_MODEL operator override
+  // (doctrine §1a — route the judge to a different family via the gateway), else the
+  // chat default. A named judge model must be a pinned snapshot — a floating alias makes
+  // calibration meaningless (doctrine §1). Fail closed before spending a single call.
+  const model = opts?.model ?? aplJudgeModel()
+  if (model !== undefined) assertModelSnapshot(model, "judge")
   const results: { id: string; expected: boolean; got: boolean }[] = []
   for (const example of examples) {
     let got = false
@@ -60,7 +65,7 @@ export const runJudge = async (
       const reply = await chat({
         system,
         prompt: buildPrompt(example.input),
-        model: opts?.model,
+        model,
         temperature: 0,
       })
       got = PASS_PATTERN.test(firstNonEmptyLine(reply))
