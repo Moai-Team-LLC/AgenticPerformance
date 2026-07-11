@@ -13,6 +13,7 @@
 import type { AplChat } from "../ai"
 
 import { stratifiedCalibration, type StratifiedCalibration } from "./calibration"
+import { assertModelSnapshot } from "./version"
 
 export interface JudgeExample {
   id: string
@@ -49,11 +50,19 @@ export const runJudge = async (
   opts?: { system?: string; model?: string },
 ): Promise<{ id: string; expected: boolean; got: boolean }[]> => {
   const system = opts?.system ?? DEFAULT_SYSTEM
+  // A named judge model must be a pinned snapshot — a floating alias makes calibration
+  // meaningless (doctrine §1). Fail closed before spending a single call.
+  if (opts?.model !== undefined) assertModelSnapshot(opts.model, "judge")
   const results: { id: string; expected: boolean; got: boolean }[] = []
   for (const example of examples) {
     let got = false
     try {
-      const reply = await chat({ system, prompt: buildPrompt(example.input), model: opts?.model })
+      const reply = await chat({
+        system,
+        prompt: buildPrompt(example.input),
+        model: opts?.model,
+        temperature: 0,
+      })
       got = PASS_PATTERN.test(firstNonEmptyLine(reply))
     } catch {
       got = false

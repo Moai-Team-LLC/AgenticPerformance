@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { isCalibrationStale, judgeVersionHash } from "./version"
+import { assertModelSnapshot, isCalibrationStale, isModelSnapshotId, judgeVersionHash } from "./version"
 
 const DAY = 86_400_000
 
@@ -34,5 +34,18 @@ describe("APL judge version + staleness (Phase-3 APL-3.1)", () => {
     expect(
       isCalibrationStale(old, { promptHash: "p1", modelSnapshotId: "m1" }, now, 30).stale,
     ).toBe(true)
+  })
+
+  it("recognises dated snapshots and rejects floating aliases (§1)", () => {
+    expect(isModelSnapshotId("gpt-4o-2024-11-20")).toBe(true)
+    expect(isModelSnapshotId("claude-3-5-sonnet-20241022")).toBe(true)
+    expect(isModelSnapshotId("gpt-4o")).toBe(false)
+    expect(isModelSnapshotId("gpt-4o-mini")).toBe(false)
+    expect(isModelSnapshotId("claude-3-5-sonnet-latest")).toBe(false)
+  })
+
+  it("assertModelSnapshot throws on a floating alias, passes a pinned snapshot", () => {
+    expect(() => assertModelSnapshot("gpt-4o-mini")).toThrow(/floating alias/)
+    expect(() => assertModelSnapshot("gpt-4o-2024-11-20")).not.toThrow()
   })
 })

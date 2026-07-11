@@ -39,6 +39,28 @@ export const checkJudgeIndependence = (
   return { independent: reasons.length === 0, reasons }
 }
 
+export interface GeneratorJudgeDecorrelation {
+  decorrelated: boolean
+  reason?: string
+}
+
+/**
+ * Doctrine §1a: a judge must be a DIFFERENT model family than the GENERATOR whose output
+ * it verifies. A same-family second pass shares the generator's blind spots and co-signs
+ * its errors ("two GPT passes are one opinion twice") — distinct from `checkJudgeIndependence`,
+ * which guards the judge against the judge a patch was optimized against.
+ */
+export const checkGeneratorJudgeDecorrelation = (
+  generatorProvider: string,
+  judgeProvider: string,
+): GeneratorJudgeDecorrelation =>
+  generatorProvider === judgeProvider
+    ? {
+        decorrelated: false,
+        reason: `judge shares the generator's model family (${judgeProvider}) — a same-family check co-signs shared blind spots`,
+      }
+    : { decorrelated: true }
+
 export interface CorpusPartition {
   /** Seen only by the gating judge — the proposer never sees these. */
   sealed: string[]

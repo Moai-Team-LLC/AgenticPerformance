@@ -35,12 +35,20 @@ export interface GateInput {
   prior?: SuiteScore | null
   /** Whether the mandatory deterministic baseline suite passed. */
   baselinePassed: boolean
+  /**
+   * When this suite's pass decision used an LLM judge, its calibration state. An
+   * uncalibrated or stale judge cannot gate — its verdicts are not trustworthy, so the
+   * gate HARD-FAILS rather than shipping on an unverified judge (doctrine §1). Omit for
+   * deterministic-only suites.
+   */
+  judge?: { calibrated: boolean; stale: boolean }
   tolerance?: number
   minSeedCases?: number
 }
 
 export type GateKind =
   | "baseline-fail"
+  | "judge-uncalibrated"
   | "empty-suite"
   | "cold-start"
   | "case-set-mismatch"
@@ -59,6 +67,15 @@ export const gate = (input: GateInput): GateDecision => {
 
   if (!input.baselinePassed) {
     return { pass: false, kind: "baseline-fail", reason: "mandatory baseline suite failed" }
+  }
+  if (input.judge !== undefined && (!input.judge.calibrated || input.judge.stale)) {
+    return {
+      pass: false,
+      kind: "judge-uncalibrated",
+      reason: input.judge.stale
+        ? "judge calibration is stale — recalibrate before gating on its verdicts"
+        : "judge is not calibrated — its verdicts cannot gate",
+    }
   }
   if (input.current.total === 0) {
     return {

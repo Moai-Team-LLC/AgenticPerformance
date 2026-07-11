@@ -53,4 +53,12 @@ describe("APL judge runner (Phase-3 APL-2.5/3.x)", () => {
     expect(report.stratifiedCalibrated).toBe(false)
     expect(report.reasons.some((r) => r.includes("positive labels"))).toBe(true)
   })
+
+  it("rejects a floating judge model before spending a call, accepts a pinned snapshot (§1)", async () => {
+    await expect(runJudge(examples, fakeChat, { model: "gpt-4o-mini" })).rejects.toThrow(
+      /floating alias/,
+    )
+    const ok = await runJudge(examples, fakeChat, { model: "gpt-4o-2024-11-20" })
+    expect(ok.map((r) => r.got)).toEqual([true, true, false, false])
+  })
 })
