@@ -14,6 +14,12 @@ export interface AplChatRequest {
   system?: string
   /** OpenAI-compatible model id; operators configure per deployment. */
   model?: string
+  /**
+   * Sampling temperature. Defaults to 0 (deterministic) — a judge or extractor whose
+   * verdict changes run-to-run cannot be calibrated, so reproducibility is the default;
+   * a caller that genuinely wants diversity (e.g. a proposer) opts in explicitly.
+   */
+  temperature?: number
 }
 
 export type AplChat = (request: AplChatRequest) => Promise<string>
@@ -22,11 +28,12 @@ export type AplChat = (request: AplChatRequest) => Promise<string>
 export const DEFAULT_APL_CHAT_MODEL = "gpt-4o-mini"
 
 /** Real adapter over the engine's configured chat provider. */
-export const aiChat: AplChat = async ({ prompt, system, model }) => {
+export const aiChat: AplChat = async ({ prompt, system, model, temperature }) => {
   const { text } = await generateText({
     model: chatModel(model ?? DEFAULT_APL_CHAT_MODEL),
     system,
     prompt,
+    temperature: temperature ?? 0,
   })
   return text
 }

@@ -68,4 +68,32 @@ describe("APL version gate (Phase-2 APL-2.3)", () => {
     expect(d.pass).toBe(true)
     expect(d.kind).toBe("ok")
   })
+
+  it("hard-fails when a judge-scored suite gates on an uncalibrated or stale judge (§1)", () => {
+    const uncal = gate({
+      current: score(0.95, 50),
+      prior: score(0.9, 50),
+      baselinePassed: true,
+      judge: { calibrated: false, stale: false },
+    })
+    expect(uncal).toMatchObject({ pass: false, kind: "judge-uncalibrated" })
+
+    const stale = gate({
+      current: score(0.95, 50),
+      prior: score(0.9, 50),
+      baselinePassed: true,
+      judge: { calibrated: true, stale: true },
+    })
+    expect(stale).toMatchObject({ pass: false, kind: "judge-uncalibrated" })
+  })
+
+  it("a calibrated fresh judge does not block normal gating", () => {
+    const d = gate({
+      current: score(0.95, 50),
+      prior: score(0.9, 50),
+      baselinePassed: true,
+      judge: { calibrated: true, stale: false },
+    })
+    expect(d).toMatchObject({ pass: true, kind: "ok" })
+  })
 })

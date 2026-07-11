@@ -38,6 +38,12 @@ export interface ScorecardInput {
   pendingApprovals: number
   /** From the code-enforced L3 eligibility check (Phase 5). */
   l3Eligible: boolean
+  /**
+   * Count of outcomes that PASSED the verify gate over this window — the denominator
+   * of cost-per-verified-outcome (doctrine §5). Distinct from run count: a run that
+   * failed verify is not a verified outcome even though it consumed the same cost.
+   */
+  verifiedOutcomes: number
 }
 
 export interface Scorecard {
@@ -56,6 +62,14 @@ export interface Scorecard {
   toolCallSuccessRate: number
   pendingApprovals: number
   l3Eligible: boolean
+  /**
+   * $ per verify-passing outcome = actual cost / verifiedOutcomes. `null` when no
+   * outcome passed verify in the window (the honest answer, not a divide-by-zero).
+   * The metric to watch instead of cost-per-run: a rising value means the loop is
+   * burning more to confirm less — the earliest signal of a degrading generator or a
+   * mis-calibrated judge.
+   */
+  costPerVerifiedOutcome: number | null
 }
 
 const budgetRows = (budget: Budget, actual: Budget): Scorecard["budgetVsActual"] => {
@@ -86,6 +100,9 @@ export const buildScorecard = (input: ScorecardInput): Scorecard => {
 
   const topClusters = [...input.clusters].sort((a, b) => b.count - a.count).slice(0, 10)
 
+  const costPerVerifiedOutcome =
+    input.verifiedOutcomes > 0 ? (input.actual.costUsd ?? 0) / input.verifiedOutcomes : null
+
   return {
     agentId: input.agentId,
     currentVersion: input.currentVersion,
@@ -96,5 +113,6 @@ export const buildScorecard = (input: ScorecardInput): Scorecard => {
     toolCallSuccessRate: input.toolCallSuccessRate,
     pendingApprovals: input.pendingApprovals,
     l3Eligible: input.l3Eligible,
+    costPerVerifiedOutcome,
   }
 }

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 
-import { checkJudgeIndependence, partitionCorpus } from "./independence"
+import {
+  checkGeneratorJudgeDecorrelation,
+  checkJudgeIndependence,
+  partitionCorpus,
+} from "./independence"
 
 describe("APL gating-judge independence (Phase-5 APL-5.2)", () => {
   it("independent only when provider, authorship, and label set all differ", () => {
@@ -26,5 +30,10 @@ describe("APL gating-judge independence (Phase-5 APL-5.2)", () => {
     expect(overlap).toEqual([]) // sealed never leaks into gate/tuning
     expect(a.sealed.length / ids.length).toBeGreaterThan(0.12)
     expect(a.sealed.length / ids.length).toBeLessThan(0.28)
+  })
+
+  it("flags a judge that shares the generator's model family, passes a different one (§1a)", () => {
+    expect(checkGeneratorJudgeDecorrelation("openai", "openai").decorrelated).toBe(false)
+    expect(checkGeneratorJudgeDecorrelation("openai", "anthropic")).toEqual({ decorrelated: true })
   })
 })
