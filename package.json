@@ -22,7 +22,7 @@
     "tsx": "^4.19.2"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.67.0",
+    "@dotenvx/dotenvx": "^2.8.0",
     "@types/node": "^26.1.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.7"
