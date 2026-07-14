@@ -1,6 +1,6 @@
 import { tenantColumn } from "./_tenant"
 import { sql } from "drizzle-orm"
-import { index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import { check, index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
 
 /**
  * APL judge registry (Phase-3, backlog APL-3.1). A judge is a versioned entity:
@@ -23,11 +23,21 @@ const aplJudge = pgTable(
     conventionVersion: text("convention_version").notNull(),
     calibration: jsonb("calibration"),
     calibratedAt: timestamp("calibrated_at", { withTimezone: true }),
+    /** Judge Card status (FR-JUDGE-5/6): only 'calibrated' may gate (Cycle of Trust). */
+    status: text("status").notNull().default("uncalibrated"),
+    /** Full Judge Card artifact (FR-JUDGE-5): ECE, Brier, bias battery, anchor sample provenance. */
+    card: jsonb("card"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`now()`)
       .notNull(),
   },
-  (table) => [index("apl_judge_version_idx").on(table.tenantId, table.version)],
+  (table) => [
+    index("apl_judge_version_idx").on(table.tenantId, table.version),
+    check(
+      "apl_judge_status_check",
+      sql`${table.status} IN ('calibrated', 'uncalibrated', 'stale')`,
+    ),
+  ],
 )
 
 type AplJudgeInsert = typeof aplJudge.$inferInsert

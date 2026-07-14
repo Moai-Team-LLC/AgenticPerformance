@@ -3,7 +3,17 @@ import { aplAgentVersion } from "./agent-version"
 import { EMBEDDING_DIMENSIONS } from "./_config"
 import { tenantColumn } from "./_tenant"
 import { sql } from "drizzle-orm"
-import { index, integer, pgTable, real, text, timestamp, uuid, vector } from "drizzle-orm/pg-core"
+import {
+  check,
+  index,
+  integer,
+  pgTable,
+  real,
+  text,
+  timestamp,
+  uuid,
+  vector,
+} from "drizzle-orm/pg-core"
 
 /**
  * APL failure clusters (Phase-3, backlog APL-3.3). Keyed (tenant_id, agent_id) —
@@ -62,11 +72,22 @@ const aplFailure = pgTable(
     severity: text("severity"),
     cost: real("cost"),
     latencyMs: integer("latency_ms"),
+    /**
+     * Pipeline-stage attribution (FR-FAIL-6), orthogonal to the cluster taxonomy —
+     * mirrors PIPELINE_STAGES (lib/apl/failure/stage.ts). NULL = untagged legacy row.
+     */
+    pipelineStage: text("pipeline_stage"),
     discoveredAt: timestamp("discovered_at", { withTimezone: true })
       .default(sql`now()`)
       .notNull(),
   },
-  (table) => [index("apl_failure_cluster_ref_idx").on(table.tenantId, table.clusterId)],
+  (table) => [
+    index("apl_failure_cluster_ref_idx").on(table.tenantId, table.clusterId),
+    check(
+      "apl_failure_pipeline_stage_check",
+      sql`${table.pipelineStage} IN ('retrieval_miss', 'reasoning_error', 'tool_error', 'verification_error') OR ${table.pipelineStage} IS NULL`,
+    ),
+  ],
 )
 
 type AplFailureClusterInsert = typeof aplFailureCluster.$inferInsert

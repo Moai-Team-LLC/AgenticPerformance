@@ -4,6 +4,40 @@ All notable changes to AgenticPerformance are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] — 2026-07-14
+
+The eval-science spec (v0.3 delta) is now **implemented** — measurement science
+as code, with migration `0001` extending the data model.
+
+### Added
+
+- **Judge Card** (`judge/card.ts`) — confidence calibration (ECE, Brier),
+  bias battery (swap-consistency / position bias), and a derived
+  `calibrated | uncalibrated | stale` status with the Cycle-of-Trust invariant:
+  only a calibrated judge may gate L3/auto-apply/release (`canGate`).
+- **Staged failure attribution** (`failure/stage.ts`) — the orthogonal
+  `retrieval_miss | reasoning_error | tool_error | verification_error` axis with
+  deterministic precedence and per-stage rollups; `apl_failure.pipeline_stage`.
+- **Retrieval evaluation** (`eval/retrieval.ts`) — Recall@k, MRR, NDCG (graded),
+  a separate retrieval regression gate (Recall@5, cold-start aware, n=0 hard
+  fail) and `passCubed` for release-critical changes; `apl_retrieval_case`.
+- **Ground-truth provenance** (`eval/provenance.ts`) — per-item provenance
+  (rubric version, labeler, agreement, origin); `unanchored` sets cannot back
+  release gates; rubric changes compute judge re-baseline targets. Provenance
+  columns on `apl_eval_case`.
+- **Gold probes** (`judge/gold-probes.ts`) — deterministic 2–5% probe sampling,
+  windowed probe-accuracy trend, and a volume-floored drift alert.
+- **Drift monitoring** (`drift/`) — representativeness (centroid-cosine shift +
+  a training-free two-sample AUC) answering "when did my evals stop representing
+  prod?", and tool-call-mix behavior drift (total-variation distance with a
+  volume floor); `apl_representativeness_run`.
+- **Human-review pipeline** (`hitl/`) — review capture → `review_capture`
+  golden candidates, stratified escalation+random sampling, reviewer-ops
+  metrics, and a trust-ladder sampling schedule with auto-re-escalation;
+  `apl_review_capture`.
+- Migration `0001` — three new tables (all RLS-isolated) + the judge/failure/
+  eval-case column extensions.
+
 ## [0.3.0] — 2026-07-14
 
 The eval-science spec lands, plus the first measurement-discipline features.
@@ -95,6 +129,7 @@ PRD (see [`docs/`](docs)).
   products' telemetry into the APL contract (zero dependency on their packages).
 - **Worker** (`@apl/worker`) — an advisory-locked improvement sweep.
 
+[0.4.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.4.0
 [0.3.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.3.0
 [0.2.1]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.2.1
 [0.2.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.2.0
