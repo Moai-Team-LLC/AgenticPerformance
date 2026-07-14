@@ -65,10 +65,20 @@ const operationForKind = (kind: AttrValue | undefined, isRoot: boolean): AplOper
   }
 }
 
+// Standard OTel GenAI agent-identity keys: preserved through OpenInference
+// normalization so an OpenInference-emitting agent (openinference.span.kind set)
+// that also stamps the vendor-neutral gen_ai.agent.* attrs stays attributable.
+const AGENT_IDENTITY_KEYS: readonly string[] = [
+  GenAI.AGENT_ID,
+  GenAI.AGENT_NAME,
+  GenAI.AGENT_VERSION,
+]
+
 const copyPassthrough = (attrs: Attributes, out: Attributes): void => {
-  // Preserve any apl.* attributes the SDK stamped (per-invocation facts).
+  // Preserve apl.* attributes (per-invocation facts) + the standard GenAI agent
+  // identity — everything else is recomputed from the OpenInference kind.
   for (const [key, value] of Object.entries(attrs)) {
-    if (key.startsWith("apl.")) out[key] = value
+    if (key.startsWith("apl.") || AGENT_IDENTITY_KEYS.includes(key)) out[key] = value
   }
 }
 
