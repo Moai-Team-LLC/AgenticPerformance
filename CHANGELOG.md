@@ -4,6 +4,30 @@ All notable changes to AgenticPerformance are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] — 2026-07-14
+
+The eval-science spec lands, plus the first measurement-discipline features.
+
+### Added
+
+- **Eval-Science spec (v0.3 delta)** — measurement science from Agentic Product
+  Standard v3.1 Part V: Judge Card, staged failure attribution, retrieval
+  metrics, ground-truth provenance, drift monitoring, and the human-review
+  pipeline ([docs/APL-PRD-v0.3-eval-science-delta.md](docs/APL-PRD-v0.3-eval-science-delta.md)). (#57)
+- **Judge routing** — `APL_JUDGE_MODEL` env knob routes the eval judge (§1a). (#56)
+- **Judge decorrelation** — grounded in the routed model id. (#55)
+- **Cycle-of-Trust graduation gate** — numeric autonomy graduation (§6). (#54)
+- **GenAI agent attribution** — ingest falls back to the standard
+  `gen_ai.agent.{id,name,version}` keys when `apl.*` identity is absent
+  (`apl.*` still wins when both are present). (#47)
+- ADR: defer the native prompt-hook/goal-judge migration. (#43)
+
+### Changed
+
+- Ecosystem docs: AgenticGateway and AgenticAssurance joined the family table;
+  AgenticSelfHealingCode left it. (#53)
+- Deps: `ai` v7, `actions/checkout` v7, `@types/node` v26.
+
 ## [0.2.1] — 2026-07-03
 
 ### Security
@@ -71,6 +95,7 @@ PRD (see [`docs/`](docs)).
   products' telemetry into the APL contract (zero dependency on their packages).
 - **Worker** (`@apl/worker`) — an advisory-locked improvement sweep.
 
+[0.3.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.3.0
 [0.2.1]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.2.1
 [0.2.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Moai-Team-LLC/AgenticPerformance/releases/tag/v0.1.0
