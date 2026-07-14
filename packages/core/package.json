@@ -11,7 +11,7 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/openai-compatible": "^2.0.48",
+    "@ai-sdk/openai-compatible": "^3.0.10",
     "@opentelemetry/api": "^1.9.1",
     "ai": "^7.0.18",
     "drizzle-orm": "^0.45.2",
