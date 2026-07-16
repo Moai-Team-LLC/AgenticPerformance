@@ -47,7 +47,7 @@ The eval-science spec lands, plus the first measurement-discipline features.
 - **Eval-Science spec (v0.3 delta)** — measurement science from Agentic Product
   Standard v3.1 Part V: Judge Card, staged failure attribution, retrieval
   metrics, ground-truth provenance, drift monitoring, and the human-review
-  pipeline ([docs/APL-PRD-v0.3-eval-science-delta.md](docs/APL-PRD-v0.3-eval-science-delta.md)). (#57)
+  pipeline. (#57)
 - **Judge routing** — `APL_JUDGE_MODEL` env knob routes the eval judge (§1a). (#56)
 - **Judge decorrelation** — grounded in the routed model id. (#55)
 - **Cycle-of-Trust graduation gate** — numeric autonomy graduation (§6). (#54)
@@ -100,7 +100,7 @@ pipeline.
 
 Initial release — the reference implementation of the Agentic Product Standard's
 *Evals & observability* surface. Built spec-first from an adversarially-reviewed
-PRD (see [`docs/`](docs)).
+PRD.
 
 ### Added
 

@@ -43,4 +43,3 @@ runtime `schema` object does not include them, so the app is unaffected.
 `trace/span` (TimescaleDB hypertable), `eval_case`/`eval_run` (+`case_set_hash`),
 `judge` (snapshot-pinned + calibration), `failure`/`failure_cluster` (tenant+agent,
 label-embedding), `improvement` (full rollback/audit ledger), `scorecard` read-model.
-See `../../../../../../ClaudeCode/apl/APL-backlog.md` (planning repo) for the phased plan.
