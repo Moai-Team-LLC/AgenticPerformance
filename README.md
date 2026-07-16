@@ -36,9 +36,12 @@ One standard and five reference implementations you can run — together they cl
 
 **How they compose.** **AgenticOps** runs the fleet, **AgenticMind** gives agents auditable knowledge & memory, and **AgenticPerformance** measures every run with traces and evals — closing the **run → remember → measure** loop. **AgenticGateway** is the model plane every LLM call in that loop passes through — one key, eval-measured routing, cost ceilings — and **AgenticAssurance** red-teams any agent in the loop, with the whole stack conforming to the **[agentic-product-standard](https://github.com/Moai-Team-LLC/agentic-product-standard)**.
 
-> Status: `@apl/core` + `@apl/ingest` (OTLP server) + `@apl/worker` are built and
-> tested (**122 tests**, `tsc` clean); the migration applies to a fresh Postgres and
-> `POST /v1/traces` is verified end-to-end. A published `@apl/sdk` is next.
+> Status: **v0.4.0 "Eval-Science"** — `@apl/core` + `@apl/ingest` (OTLP server) +
+> `@apl/worker` are built and tested (**244 tests**, `tsc` clean). Beyond the trace
+> pipeline this release lands the judge card (calibration gate), staged failure
+> attribution, retrieval evaluation, ground-truth provenance, drift monitoring, and
+> HITL review capture; the migration applies to a fresh Postgres and `POST /v1/traces`
+> is verified end-to-end.
 
 ## The 7 layers
 
@@ -81,7 +84,7 @@ bun install
 cp .env.example .env.local
 
 docker compose up -d            # Postgres (pgvector + vectorscale + TimescaleDB) on :5439
-bun run db:migrate-local        # creates the 10 apl_* tables, RLS, hypertable, retention
+bun run db:migrate-local        # creates the 13 apl_* tables, RLS, hypertable, retention
 
 bun run ingest                  # the OTLP/JSON trace server on :4319
 ```
@@ -110,7 +113,7 @@ the reference tail-sampling + redaction config). Going beyond localhost? See
 ```
 bun install
 bun run tsc        # typecheck core + apps (strict)
-bun run test       # vitest (122 tests)
+bun run test       # vitest (244 tests)
 ```
 
 ## Production deployment

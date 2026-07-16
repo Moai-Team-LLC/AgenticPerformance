@@ -4,7 +4,7 @@ Copyright 2026 Moai Team LLC
 Licensed under the Apache License, Version 2.0 (the "License").
 
 This product includes a small number of primitives vendored (clean-room) from
-AgenticMind (https://github.com/AlexDuchDev/AgenticMind), also licensed under the
+AgenticMind (https://github.com/Moai-Team-LLC/AgenticMind), also licensed under the
 Apache License, Version 2.0. The vendored files are collected under
 packages/core/src/vendor/ and packages/core/src/database/schema/_tenant.ts,
 _config.ts, and are marked as such in their headers.
