@@ -69,8 +69,7 @@ packages/core        @apl/core — all the logic (contract, SDK, ingest, eval,
                      guard, calibration math, tenant RLS helper, chat seam).
 apps/ingest          @apl/ingest — OTLP/JSON server (POST /v1/traces → apl_span).
 apps/worker          @apl/worker — the advisory-locked improvement scheduler.
-docs/                the PRD (v0.1 → v0.2), the review findings, the phased
-                     backlog, and the design decisions.
+docs/adr/            architecture decision records.
 ```
 
 ## Quickstart (~5 minutes to your first trace)
@@ -148,9 +147,7 @@ Production checklist:
 
 ## Design decisions (why it is the way it is)
 
-APL began as a rigorously-reviewed spec. Key locked decisions live in
-`docs/APL-PRD-v0.2.md` and `docs/APL-plan-and-openq.md`; the adversarial review
-that shaped them is in `docs/APL-REVIEW-findings.md`. Highlights: Postgres-only
+APL began as a rigorously-reviewed spec. Highlights: Postgres-only
 (no second datastore — RLS tenant isolation is mandatory for the trace store);
 statistically-sound judge calibration (stratified ≥50/class + Wilson lower bound,
 not point estimates); mechanically-enforced autonomy boundary (a patch that
