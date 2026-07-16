@@ -6,6 +6,10 @@
  * deliberately NOT built here.
  */
 
+import type { ModelPricing, TokenUsage } from "./cost"
+
+import { cacheAdjustedCostUsd } from "./cost"
+
 export interface ScoredRun {
   agentVersion: string
   caseSetHash: string
@@ -44,6 +48,14 @@ export interface ScorecardInput {
    * failed verify is not a verified outcome even though it consumed the same cost.
    */
   verifiedOutcomes: number
+  /**
+   * Optional cache-split token usage + pricing. When BOTH are present, the numerator of
+   * cost-per-verified-outcome is computed cache-adjusted (cache-read ≈ −90%) instead of
+   * trusting `actual.costUsd` — a raw-token cost overstates spend ~6× when cache-read
+   * dominates, firing the §5 alarm on noise. Absent → falls back to `actual.costUsd`.
+   */
+  actualUsage?: TokenUsage
+  pricing?: ModelPricing
 }
 
 export interface Scorecard {
@@ -100,8 +112,13 @@ export const buildScorecard = (input: ScorecardInput): Scorecard => {
 
   const topClusters = [...input.clusters].sort((a, b) => b.count - a.count).slice(0, 10)
 
+  // Cache-adjusted numerator when usage+pricing are given; else the caller-supplied cost.
+  const numeratorUsd =
+    input.actualUsage !== undefined && input.pricing !== undefined
+      ? cacheAdjustedCostUsd(input.actualUsage, input.pricing)
+      : (input.actual.costUsd ?? 0)
   const costPerVerifiedOutcome =
-    input.verifiedOutcomes > 0 ? (input.actual.costUsd ?? 0) / input.verifiedOutcomes : null
+    input.verifiedOutcomes > 0 ? numeratorUsd / input.verifiedOutcomes : null
 
   return {
     agentId: input.agentId,
