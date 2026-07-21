@@ -15,15 +15,19 @@
     "worker": "dotenvx run -f .env.local -- bun apps/worker/src/index.ts",
     "test:watch": "vitest",
     "db:generate": "dotenvx run -f .env.local -- drizzle-kit generate",
-    "db:migrate-local": "dotenvx run -f .env.local -- drizzle-kit migrate"
+    "db:migrate-local": "dotenvx run -f .env.local -- drizzle-kit migrate",
+    "prepare": "husky"
   },
   "dependencies": {
     "drizzle-kit": "0.31.10",
     "tsx": "^4.19.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
     "@dotenvx/dotenvx": "^2.8.0",
     "@types/node": "^26.1.1",
+    "husky": "^9.1.7",
     "typescript": "^6.0.3",
     "vitest": "^4.1.7"
   },
