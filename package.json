@@ -28,7 +28,7 @@
     "@dotenvx/dotenvx": "^2.8.0",
     "@types/node": "^26.1.1",
     "husky": "^9.1.7",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.7"
   },
   "engines": {
