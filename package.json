@@ -19,7 +19,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "drizzle-kit": "0.31.10",
+    "drizzle-kit": "0.31.11",
     "tsx": "^4.19.2"
   },
   "devDependencies": {
